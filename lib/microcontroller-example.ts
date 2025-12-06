@@ -7,7 +7,6 @@
 // Exemplo de payload para sensor de temperatura
 export const temperaturePayload = {
   temperature: 4.5, // Temperatura em Celsius (obrigatório)
-  humidity: 65.2, // Umidade relativa % (opcional)
   device_id: "esp32-001", // ID do dispositivo (opcional, default: 'default')
 }
 
@@ -58,7 +57,7 @@ export const devicePayload = {
  * const char* serverUrl = "http://seu-servidor:3000";
  * const char* deviceId = "esp32-001";
  *
- * void sendTemperature(float temp, float humidity) {
+ * void sendTemperature(float temp) {
  *   if (WiFi.status() == WL_CONNECTED) {
  *     HTTPClient http;
  *     http.begin(String(serverUrl) + "/api/sensors/temperature");
@@ -66,7 +65,6 @@ export const devicePayload = {
  *
  *     StaticJsonDocument<200> doc;
  *     doc["temperature"] = temp;
- *     doc["humidity"] = humidity;
  *     doc["device_id"] = deviceId;
  *
  *     String jsonString;

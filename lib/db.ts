@@ -89,7 +89,6 @@ export interface TemperatureSensorData {
   id?: number
   timestamp?: Date
   temperature: number
-  humidity?: number
   device_id?: string
 }
 

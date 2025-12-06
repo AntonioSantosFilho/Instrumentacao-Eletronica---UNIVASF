@@ -9,7 +9,7 @@ const MAX_TEMP = 8
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { temperature, humidity, device_id = "default" } = body
+    const { temperature, device_id = "default" } = body
 
     if (temperature === undefined || typeof temperature !== "number") {
       return NextResponse.json({ error: 'O campo "temperature" deve ser um número' }, { status: 400 })
@@ -17,11 +17,9 @@ export async function POST(request: NextRequest) {
 
     // Arredondar temperatura para 2 casas decimais para evitar problemas de precisão
     const roundedTemperature = Math.round(temperature * 100) / 100
-    const roundedHumidity = humidity !== undefined ? Math.round(humidity * 100) / 100 : humidity
 
-    await query("INSERT INTO temperature_sensor (temperature, humidity, device_id) VALUES (?, ?, ?)", [
+    await query("INSERT INTO temperature_sensor (temperature, device_id) VALUES (?, ?)", [
       roundedTemperature,
-      roundedHumidity,
       device_id,
     ])
 

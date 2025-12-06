@@ -2,17 +2,17 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Fingerprint, Clock } from "lucide-react"
+import { Thermometer, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-interface TouchCardProps {
-  touch: { value: boolean; timestamp: string } | null
+interface TemperatureSensorCardProps {
+  temperature: { temperature: number; timestamp: string } | null
 }
 
-export function TouchSensorCard({ touch }: TouchCardProps) {
-  const isOnline = touch !== null
-  const isActive = touch?.value === true
-  const timestamp = touch?.timestamp ? new Date(touch.timestamp) : null
+export function TemperatureSensorCard({ temperature }: TemperatureSensorCardProps) {
+  const isOnline = temperature !== null
+  const tempValue = temperature?.temperature
+  const timestamp = temperature?.timestamp ? new Date(temperature.timestamp) : null
 
   // Calcular tempo desde a última leitura
   const getTimeAgo = (timestamp: Date) => {
@@ -28,21 +28,24 @@ export function TouchSensorCard({ touch }: TouchCardProps) {
     return `${diffDays} dias atrás`
   }
 
+  // Verificar se está dentro da faixa ideal (2-8°C)
+  const isInRange = tempValue !== null && tempValue >= 2 && tempValue <= 8
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Sensor de Toque</CardTitle>
-        <Fingerprint className={cn("h-4 w-4", isOnline ? "text-emerald-500" : "text-zinc-400")} />
+        <CardTitle className="text-sm font-medium">Sensor de Temperatura</CardTitle>
+        <Thermometer className={cn("h-4 w-4", isOnline ? "text-emerald-500" : "text-zinc-400")} />
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <div className={cn("text-2xl font-bold", isActive ? "text-emerald-500" : "text-zinc-400")}>
-                {isActive ? "Ativado" : touch !== null ? "Desativado" : "--"}
+              <div className={cn("text-2xl font-bold", isInRange ? "text-emerald-500" : "text-orange-500")}>
+                {tempValue !== null ? `${Number(tempValue).toFixed(1)}°C` : "--"}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {isActive ? "Toque detectado" : touch !== null ? "Sem toque" : "Sem dados"}
+                {isInRange ? "Dentro da faixa ideal" : tempValue !== null ? "Fora da faixa ideal" : "Sem dados"}
               </p>
             </div>
             <Badge variant={isOnline ? "default" : "secondary"}>
@@ -73,5 +76,4 @@ export function TouchSensorCard({ touch }: TouchCardProps) {
     </Card>
   )
 }
-
 

@@ -7,8 +7,8 @@ interface DashboardStats {
   criticalAlerts: number
   lastTemperature: { temperature: number; timestamp: Date } | null
   avgTemperature: number | null
-  lastDoorState: string | null
-  lastGPS: { latitude: number; longitude: number } | null
+  lastDoorState: { state: string; timestamp: Date } | null
+  lastGPS: { latitude: number; longitude: number; timestamp: Date } | null
   lastTouch: { value: boolean; timestamp: Date } | null
   status: "active" | "inactive"
 }
@@ -44,13 +44,13 @@ export async function GET(request: NextRequest) {
 
     // Último estado da porta
     const [lastDoor] = await query<any[]>(
-      "SELECT state FROM door_sensor WHERE device_id = ? ORDER BY timestamp DESC LIMIT 1",
+      "SELECT state, timestamp FROM door_sensor WHERE device_id = ? ORDER BY timestamp DESC LIMIT 1",
       [device_id],
     )
 
     // Última localização GPS
     const [lastGPS] = await query<any[]>(
-      "SELECT latitude, longitude FROM gps_sensor WHERE device_id = ? ORDER BY timestamp DESC LIMIT 1",
+      "SELECT latitude, longitude, timestamp FROM gps_sensor WHERE device_id = ? ORDER BY timestamp DESC LIMIT 1",
       [device_id],
     )
 
@@ -68,6 +68,14 @@ export async function GET(request: NextRequest) {
     // Histórico de temperatura das últimas 24h para o gráfico
     const tempHistory = await query<any[]>(
       `SELECT temperature, timestamp FROM temperature_sensor 
+       WHERE device_id = ? AND timestamp >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+       ORDER BY timestamp ASC`,
+      [device_id],
+    )
+
+    // Histórico de GPS das últimas 24h para o gráfico
+    const gpsHistory = await query<any[]>(
+      `SELECT latitude, longitude, timestamp FROM gps_sensor 
        WHERE device_id = ? AND timestamp >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
        ORDER BY timestamp ASC`,
       [device_id],
@@ -93,8 +101,8 @@ export async function GET(request: NextRequest) {
       criticalAlerts: alertStats?.critical || 0,
       lastTemperature: lastTemp ? { temperature: lastTemp.temperature, timestamp: lastTemp.timestamp } : null,
       avgTemperature: avgTemp?.avg_temp || null,
-      lastDoorState: lastDoor?.state || null,
-      lastGPS: lastGPS ? { latitude: lastGPS.latitude, longitude: lastGPS.longitude } : null,
+      lastDoorState: lastDoor ? { state: lastDoor.state, timestamp: lastDoor.timestamp } : null,
+      lastGPS: lastGPS ? { latitude: lastGPS.latitude, longitude: lastGPS.longitude, timestamp: lastGPS.timestamp } : null,
       lastTouch: lastTouch ? { value: Boolean(lastTouch.value), timestamp: lastTouch.timestamp } : null,
       status: isActive ? "active" : "inactive",
     }
@@ -102,6 +110,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       stats,
       tempHistory,
+      gpsHistory,
       recentAlerts,
       device: device || null,
     })

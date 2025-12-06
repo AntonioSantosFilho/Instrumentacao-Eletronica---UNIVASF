@@ -1,19 +1,21 @@
 "use client"
 
-import { useDashboard, useGPSHistory } from "@/lib/hooks/use-dashboard"
+import { useDashboard } from "@/lib/hooks/use-dashboard"
 import { DashboardHeader } from "@/components/dashboard/header"
-import { VaccineStatus } from "@/components/dashboard/vaccine-status"
+import { TemperatureSensorCard } from "@/components/dashboard/temperature-sensor-card"
+import { DoorSensorCard } from "@/components/dashboard/door-sensor-card"
+import { GPSSensorCard } from "@/components/dashboard/gps-sensor-card"
+import { TouchSensorCard } from "@/components/dashboard/touch-card"
 import { TemperatureChart } from "@/components/dashboard/temperature-chart"
-import { AlertsList } from "@/components/dashboard/alerts-list"
+import { GPSChart } from "@/components/dashboard/gps-chart"
 import { GPSMap } from "@/components/dashboard/gps-map"
-import { TouchCard } from "@/components/dashboard/touch-card"
+import { AlertsList } from "@/components/dashboard/alerts-list"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 
 export default function DashboardPage() {
   const { data, error, isLoading, refresh } = useDashboard("default")
-  const { data: gpsHistory } = useGPSHistory("default", 20)
 
   if (error) {
     return (
@@ -56,20 +58,30 @@ export default function DashboardPage() {
           unresolvedAlerts={data.stats?.unresolvedAlerts || 0}
         />
 
-        <VaccineStatus
-          temperature={data.stats?.lastTemperature?.temperature}
-          location={data.stats?.lastGPS ? { lat: data.stats.lastGPS.latitude, lng: data.stats.lastGPS.longitude } : undefined}
-          status={data.stats?.unresolvedAlerts > 0 ? "warning" : "normal"}
-        />
+        {/* Cards dos 4 Sensores */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <TemperatureSensorCard temperature={data.stats?.lastTemperature || null} />
+          <DoorSensorCard doorState={data.stats?.lastDoorState || null} />
+          <GPSSensorCard gps={data.stats?.lastGPS || null} />
+          <TouchSensorCard touch={data.stats?.lastTouch || null} />
+        </div>
 
+        {/* Gráficos de Evolução Temporal */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <TemperatureChart data={data.tempHistory || []} />
+          <GPSChart data={data.gpsHistory || []} />
+        </div>
+
+        {/* Mapa GPS e Alertas */}
         <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
-            <TemperatureChart data={data.tempHistory} />
-            <GPSMap location={data.stats?.lastGPS} history={gpsHistory} />
+          <div className="lg:col-span-2">
+            <GPSMap 
+              location={data.stats?.lastGPS ? { latitude: data.stats.lastGPS.latitude, longitude: data.stats.lastGPS.longitude } : null} 
+              history={data.gpsHistory || []} 
+            />
           </div>
-          <div className="space-y-6">
-            <TouchCard touch={data.stats?.lastTouch || null} />
-            <AlertsList alerts={data.recentAlerts} onResolve={() => refresh()} />
+          <div>
+            <AlertsList alerts={data.recentAlerts || []} onResolve={() => refresh()} />
           </div>
         </div>
       </div>

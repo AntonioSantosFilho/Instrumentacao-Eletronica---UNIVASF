@@ -5,7 +5,7 @@ import { MapPin, Navigation } from "lucide-react"
 
 interface GPSMapProps {
   location: { latitude: number; longitude: number } | null
-  history?: Array<{ latitude: number; longitude: number; timestamp: string }>
+  history?: Array<{ latitude: number; longitude: number; timestamp?: string }>
 }
 
 export function GPSMap({ location, history = [] }: GPSMapProps) {

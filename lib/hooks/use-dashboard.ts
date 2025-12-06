@@ -11,12 +11,13 @@ export interface DashboardData {
     criticalAlerts: number
     lastTemperature: { temperature: number; timestamp: string } | null
     avgTemperature: number | null
-    lastDoorState: string | null
-    lastGPS: { latitude: number; longitude: number } | null
+    lastDoorState: { state: string; timestamp: string } | null
+    lastGPS: { latitude: number; longitude: number; timestamp: string } | null
     lastTouch: { value: boolean; timestamp: string } | null
     status: "active" | "inactive"
   }
   tempHistory: Array<{ temperature: number; timestamp: string }>
+  gpsHistory: Array<{ latitude: number; longitude: number; timestamp: string }>
   recentAlerts: Array<{
     id: number
     timestamp: string

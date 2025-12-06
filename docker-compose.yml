@@ -1,5 +1,6 @@
 # Docker Compose para o sistema completo de monitoramento de vacinas
-version: '3.8'
+# Usa banco de dados DigitalOcean (configurado via .env)
+version: "3.8"
 
 services:
   # Aplicação Next.js
@@ -11,44 +12,20 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - MYSQL_HOST=db
-      - MYSQL_PORT=3306
-      - MYSQL_USER=vaccine_user
-      - MYSQL_PASSWORD=vaccine_secure_password_123
-      - MYSQL_DATABASE=vaccine_monitoring
-      - MYSQL_SSL=false
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - vaccine-network
-
-  # Banco de dados MySQL
-  db:
-    image: mysql:8.0
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=root_secure_password_123
-      - MYSQL_DATABASE=vaccine_monitoring
-      - MYSQL_USER=vaccine_user
-      - MYSQL_PASSWORD=vaccine_secure_password_123
+      # Usar variáveis de ambiente do host ou arquivo .env (DigitalOcean)
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_PORT=${MYSQL_PORT:-25060}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-defaultdb}
+      - MYSQL_SSL=${MYSQL_SSL:-true}
+      - MYSQL_CA_CERT=${MYSQL_CA_CERT:-./ca-certificate.crt}
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./scripts:/docker-entrypoint-initdb.d:ro
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_secure_password_123"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      # Montar certificado CA se necessário
+      - ./ca-certificate.crt:/app/ca-certificate.crt:ro
     restart: unless-stopped
     networks:
       - vaccine-network
-
-volumes:
-  mysql_data:
-    driver: local
 
 networks:
   vaccine-network:

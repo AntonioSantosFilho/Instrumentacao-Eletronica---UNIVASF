@@ -1,4 +1,5 @@
 # Docker Compose para uso com banco de dados em nuvem (DigitalOcean, AWS RDS, etc.)
+# Este é o arquivo recomendado para produção com banco em nuvem
 version: '3.8'
 
 services:
@@ -10,13 +11,17 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      # Usar variáveis de ambiente do host ou arquivo .env
+      # Usar variáveis de ambiente do host ou arquivo .env (DigitalOcean)
       - MYSQL_HOST=${MYSQL_HOST}
       - MYSQL_PORT=${MYSQL_PORT:-25060}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-defaultdb}
-      - MYSQL_SSL=true
+      - MYSQL_SSL=${MYSQL_SSL:-true}
+      - MYSQL_CA_CERT=${MYSQL_CA_CERT:-./ca-certificate.crt}
+    volumes:
+      # Montar certificado CA se necessário
+      - ./ca-certificate.crt:/app/ca-certificate.crt:ro
     restart: unless-stopped
     networks:
       - vaccine-network-cloud

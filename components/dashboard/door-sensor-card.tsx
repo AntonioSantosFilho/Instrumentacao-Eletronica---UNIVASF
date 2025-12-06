@@ -2,17 +2,18 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Fingerprint, Clock } from "lucide-react"
+import { DoorOpen, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-interface TouchCardProps {
-  touch: { value: boolean; timestamp: string } | null
+interface DoorSensorCardProps {
+  doorState: { state: string; timestamp: string } | null
 }
 
-export function TouchSensorCard({ touch }: TouchCardProps) {
-  const isOnline = touch !== null
-  const isActive = touch?.value === true
-  const timestamp = touch?.timestamp ? new Date(touch.timestamp) : null
+export function DoorSensorCard({ doorState }: DoorSensorCardProps) {
+  const isOnline = doorState !== null
+  const state = doorState?.state
+  const isOpen = state === "open"
+  const timestamp = doorState?.timestamp ? new Date(doorState.timestamp) : null
 
   // Calcular tempo desde a última leitura
   const getTimeAgo = (timestamp: Date) => {
@@ -31,18 +32,18 @@ export function TouchSensorCard({ touch }: TouchCardProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Sensor de Toque</CardTitle>
-        <Fingerprint className={cn("h-4 w-4", isOnline ? "text-emerald-500" : "text-zinc-400")} />
+        <CardTitle className="text-sm font-medium">Sensor de Porta</CardTitle>
+        <DoorOpen className={cn("h-4 w-4", isOnline ? "text-emerald-500" : "text-zinc-400")} />
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <div className={cn("text-2xl font-bold", isActive ? "text-emerald-500" : "text-zinc-400")}>
-                {isActive ? "Ativado" : touch !== null ? "Desativado" : "--"}
+              <div className={cn("text-2xl font-bold", isOpen ? "text-orange-500" : "text-emerald-500")}>
+                {state === "open" ? "Aberta" : state === "closed" ? "Fechada" : "--"}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {isActive ? "Toque detectado" : touch !== null ? "Sem toque" : "Sem dados"}
+                {isOpen ? "Porta aberta" : state === "closed" ? "Porta fechada" : "Sem dados"}
               </p>
             </div>
             <Badge variant={isOnline ? "default" : "secondary"}>
@@ -73,5 +74,4 @@ export function TouchSensorCard({ touch }: TouchCardProps) {
     </Card>
   )
 }
-
 

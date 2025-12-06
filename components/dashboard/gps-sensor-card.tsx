@@ -2,17 +2,16 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Fingerprint, Clock } from "lucide-react"
+import { MapPin, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-interface TouchCardProps {
-  touch: { value: boolean; timestamp: string } | null
+interface GPSSensorCardProps {
+  gps: { latitude: number; longitude: number; timestamp: string } | null
 }
 
-export function TouchSensorCard({ touch }: TouchCardProps) {
-  const isOnline = touch !== null
-  const isActive = touch?.value === true
-  const timestamp = touch?.timestamp ? new Date(touch.timestamp) : null
+export function GPSSensorCard({ gps }: GPSSensorCardProps) {
+  const isOnline = gps !== null
+  const timestamp = gps?.timestamp ? new Date(gps.timestamp) : null
 
   // Calcular tempo desde a última leitura
   const getTimeAgo = (timestamp: Date) => {
@@ -31,18 +30,18 @@ export function TouchSensorCard({ touch }: TouchCardProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Sensor de Toque</CardTitle>
-        <Fingerprint className={cn("h-4 w-4", isOnline ? "text-emerald-500" : "text-zinc-400")} />
+        <CardTitle className="text-sm font-medium">Sensor GPS</CardTitle>
+        <MapPin className={cn("h-4 w-4", isOnline ? "text-emerald-500" : "text-zinc-400")} />
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <div>
-              <div className={cn("text-2xl font-bold", isActive ? "text-emerald-500" : "text-zinc-400")}>
-                {isActive ? "Ativado" : touch !== null ? "Desativado" : "--"}
+            <div className="flex-1 min-w-0">
+              <div className="text-lg font-bold text-foreground">
+                {gps ? `${gps.latitude.toFixed(4)}, ${gps.longitude.toFixed(4)}` : "--"}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {isActive ? "Toque detectado" : touch !== null ? "Sem toque" : "Sem dados"}
+                {gps ? "Coordenadas GPS" : "Sem localização"}
               </p>
             </div>
             <Badge variant={isOnline ? "default" : "secondary"}>
@@ -73,5 +72,4 @@ export function TouchSensorCard({ touch }: TouchCardProps) {
     </Card>
   )
 }
-
 
