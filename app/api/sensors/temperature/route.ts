@@ -15,19 +15,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'O campo "temperature" deve ser um número' }, { status: 400 })
     }
 
+    // Arredondar temperatura para 2 casas decimais para evitar problemas de precisão
+    const roundedTemperature = Math.round(temperature * 100) / 100
+    const roundedHumidity = humidity !== undefined ? Math.round(humidity * 100) / 100 : humidity
+
     await query("INSERT INTO temperature_sensor (temperature, humidity, device_id) VALUES (?, ?, ?)", [
-      temperature,
-      humidity,
+      roundedTemperature,
+      roundedHumidity,
       device_id,
     ])
 
     // Verificar se a temperatura está fora do limite e gerar alerta
-    if (temperature < MIN_TEMP || temperature > MAX_TEMP) {
-      const severity = temperature < 0 || temperature > 12 ? "critical" : "high"
+    if (roundedTemperature < MIN_TEMP || roundedTemperature > MAX_TEMP) {
+      const severity = roundedTemperature < 0 || roundedTemperature > 12 ? "critical" : "high"
       const description =
-        temperature < MIN_TEMP
-          ? `Temperatura muito baixa: ${temperature}°C (mínimo: ${MIN_TEMP}°C)`
-          : `Temperatura muito alta: ${temperature}°C (máximo: ${MAX_TEMP}°C)`
+        roundedTemperature < MIN_TEMP
+          ? `Temperatura muito baixa: ${roundedTemperature.toFixed(1)}°C (mínimo: ${MIN_TEMP}°C)`
+          : `Temperatura muito alta: ${roundedTemperature.toFixed(1)}°C (máximo: ${MAX_TEMP}°C)`
 
       await query(
         `INSERT INTO alerts (alert_type, severity, description, device_id) 

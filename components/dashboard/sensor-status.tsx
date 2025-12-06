@@ -39,7 +39,9 @@ export function SensorStatus({ temperature, doorState, gps, touch }: SensorStatu
       name: "Touch",
       icon: Fingerprint,
       status: touch !== null ? "online" : "offline",
-      value: touch ? (touch.value ? "Ativado" : "Desativado") : "--",
+      value: touch 
+        ? `${touch.value ? "Ativado" : "Desativado"} - ${new Date(touch.timestamp).toLocaleString("pt-BR")}`
+        : "--",
       color: touch !== null ? "text-emerald-500" : "text-zinc-400",
     },
   ]

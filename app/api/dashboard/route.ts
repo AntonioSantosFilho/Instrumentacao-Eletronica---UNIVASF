@@ -59,6 +59,11 @@ export async function GET(request: NextRequest) {
       "SELECT value, timestamp FROM touch_sensor WHERE device_id = ? ORDER BY timestamp DESC LIMIT 1",
       [device_id],
     )
+    
+    // Converter value de TINYINT para boolean
+    if (lastTouch) {
+      lastTouch.value = Boolean(lastTouch.value)
+    }
 
     // Histórico de temperatura das últimas 24h para o gráfico
     const tempHistory = await query<any[]>(
@@ -74,6 +79,11 @@ export async function GET(request: NextRequest) {
       [device_id],
     )
 
+    // Status do dispositivo
+    const [device] = await query<any[]>("SELECT status, last_seen, battery_level FROM devices WHERE id = ?", [
+      device_id,
+    ])
+
     // Determine status based on recent activity (e.g., last 5 minutes)
     const isActive = lastTemp && (new Date().getTime() - new Date(lastTemp.timestamp).getTime() < 5 * 60 * 1000);
 
@@ -85,7 +95,7 @@ export async function GET(request: NextRequest) {
       avgTemperature: avgTemp?.avg_temp || null,
       lastDoorState: lastDoor?.state || null,
       lastGPS: lastGPS ? { latitude: lastGPS.latitude, longitude: lastGPS.longitude } : null,
-      lastTouch: lastTouch ? { value: lastTouch.value, timestamp: lastTouch.timestamp } : null,
+      lastTouch: lastTouch ? { value: Boolean(lastTouch.value), timestamp: lastTouch.timestamp } : null,
       status: isActive ? "active" : "inactive",
     }
 
@@ -93,6 +103,7 @@ export async function GET(request: NextRequest) {
       stats,
       tempHistory,
       recentAlerts,
+      device: device || null,
     })
   } catch (error) {
     console.error("Erro ao buscar dados do dashboard:", error)

@@ -6,6 +6,7 @@ import { VaccineStatus } from "@/components/dashboard/vaccine-status"
 import { TemperatureChart } from "@/components/dashboard/temperature-chart"
 import { AlertsList } from "@/components/dashboard/alerts-list"
 import { GPSMap } from "@/components/dashboard/gps-map"
+import { TouchCard } from "@/components/dashboard/touch-card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
@@ -67,6 +68,7 @@ export default function DashboardPage() {
             <GPSMap location={data.stats?.lastGPS} history={gpsHistory} />
           </div>
           <div className="space-y-6">
+            <TouchCard touch={data.stats?.lastTouch || null} />
             <AlertsList alerts={data.recentAlerts} onResolve={() => refresh()} />
           </div>
         </div>
