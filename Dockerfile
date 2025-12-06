@@ -42,9 +42,11 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copiar arquivos necessários do build
-COPY --from=builder /app/public ./public
+# O Next.js standalone já inclui os arquivos estáticos necessários
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+# Criar diretório public (Next.js pode precisar, mesmo que vazio)
+RUN mkdir -p ./public || true
 
 # Definir permissões
 USER nextjs
