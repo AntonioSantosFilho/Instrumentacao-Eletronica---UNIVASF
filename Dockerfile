@@ -3,19 +3,22 @@
 # Stage 1: Build
 FROM node:20-alpine AS builder
 
+# Instalar pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
 WORKDIR /app
 
 # Copiar arquivos de dependências
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml* ./
 
 # Instalar dependências
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 # Copiar código fonte
 COPY . .
 
 # Build da aplicação
-RUN npm run build
+RUN pnpm run build
 
 # Stage 2: Production
 FROM node:20-alpine AS runner
