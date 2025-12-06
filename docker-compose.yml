@@ -1,0 +1,55 @@
+# Docker Compose para o sistema completo de monitoramento de vacinas
+version: '3.8'
+
+services:
+  # Aplicação Next.js
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+      - MYSQL_USER=vaccine_user
+      - MYSQL_PASSWORD=vaccine_secure_password_123
+      - MYSQL_DATABASE=vaccine_monitoring
+      - MYSQL_SSL=false
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - vaccine-network
+
+  # Banco de dados MySQL
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_secure_password_123
+      - MYSQL_DATABASE=vaccine_monitoring
+      - MYSQL_USER=vaccine_user
+      - MYSQL_PASSWORD=vaccine_secure_password_123
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./scripts:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_secure_password_123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - vaccine-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  vaccine-network:
+    driver: bridge

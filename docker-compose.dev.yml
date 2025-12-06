@@ -1,0 +1,71 @@
+# Docker Compose para ambiente de desenvolvimento
+version: '3.8'
+
+services:
+  # Aplicação Next.js em modo desenvolvimento
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+      - MYSQL_USER=vaccine_user
+      - MYSQL_PASSWORD=vaccine_secure_password_123
+      - MYSQL_DATABASE=vaccine_monitoring
+      - MYSQL_SSL=false
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - vaccine-network-dev
+
+  # Banco de dados MySQL para desenvolvimento
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_dev_password
+      - MYSQL_DATABASE=vaccine_monitoring
+      - MYSQL_USER=vaccine_user
+      - MYSQL_PASSWORD=vaccine_secure_password_123
+    volumes:
+      - mysql_data_dev:/var/lib/mysql
+      - ./scripts:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_dev_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vaccine-network-dev
+
+  # phpMyAdmin para gerenciar o banco (opcional, apenas desenvolvimento)
+  phpmyadmin:
+    image: phpmyadmin:latest
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=root
+      - PMA_PASSWORD=root_dev_password
+    depends_on:
+      - db
+    networks:
+      - vaccine-network-dev
+
+volumes:
+  mysql_data_dev:
+    driver: local
+
+networks:
+  vaccine-network-dev:
+    driver: bridge
