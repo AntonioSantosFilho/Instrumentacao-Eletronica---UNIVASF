@@ -9,10 +9,20 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 # Copiar arquivos de dependências
-COPY package.json pnpm-lock.yaml* ./
+COPY package.json ./
+
+# Copiar pnpm-lock.yaml (usar padrão opcional para não falhar se não existir)
+# O padrão * permite que seja opcional, mas vamos verificar explicitamente
+COPY pnpm-lock.yaml* ./
 
 # Instalar dependências
-RUN pnpm install --frozen-lockfile
+# Verifica se o lockfile existe antes de usar --frozen-lockfile
+RUN if [ -f pnpm-lock.yaml ]; then \
+      pnpm install --frozen-lockfile; \
+    else \
+      echo "pnpm-lock.yaml não encontrado, instalando sem frozen-lockfile..."; \
+      pnpm install; \
+    fi
 
 # Copiar código fonte
 COPY . .
