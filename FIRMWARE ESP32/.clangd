@@ -1,0 +1,29 @@
+CompileFlags:
+    CompilationDatabase: build
+    Add:
+      - -IC:/Users/toim6/esp/v5.5.1/esp-idf/components/freertos/FreeRTOS-Kernel/include
+      - -IC:/Users/toim6/esp/v5.5.1/esp-idf/components/freertos/FreeRTOS-Kernel/portable/xtensa/include
+      - -IC:/Users/toim6/esp/v5.5.1/esp-idf/components/freertos/esp_additions/include
+      - -IC:/Users/toim6/esp/v5.5.1/esp-idf/components/driver/include
+      - -IC:/Users/toim6/esp/v5.5.1/esp-idf/components/esp_common/include
+      - -IC:/Users/toim6/esp/v5.5.1/esp-idf/components/esp_hw_support/include
+      - -IC:/Users/toim6/esp/v5.5.1/esp-idf/components/esp_system/include
+      - -IC:/Users/toim6/esp/v5.5.1/esp-idf/components/hal/include
+      - -IC:/Users/toim6/esp/v5.5.1/esp-idf/components/hal/esp32/include
+      - -IC:/Users/toim6/esp/v5.5.1/esp-idf/components/soc/include
+      - -IC:/Users/toim6/esp/v5.5.1/esp-idf/components/soc/esp32/include
+      - -IC:/Users/toim6/esp/v5.5.1/esp-idf/components/esp_rom/include
+      - -IC:/Users/toim6/esp/v5.5.1/esp-idf/components/esp_rom/esp32/include
+      - -IC:/Users/toim6/esp/v5.5.1/esp-idf/components/log/include
+      - -IC:/Users/toim6/esp/v5.5.1/esp-idf/components/newlib/platform_include
+      - -DIDF_VER=\"v5.5.1\"
+      - -DESP_PLATFORM
+      - -DMBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.h\"
+      - -DHAVE_CONFIG_H
+      - -DCONFIG_BLINK_PERIOD=1000
+      - -Dtrue=1
+      - -Dfalse=0
+      - -D__XTENSA__
+      - -D__XTENSA_ESP32__
+      - -std=c99
+    Remove: [-f*, -m*]
