@@ -33,10 +33,10 @@ const alertIcons: Record<string, React.ElementType> = {
 }
 
 const severityColors: Record<string, string> = {
-  low: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-  medium: "bg-amber-500/10 text-amber-500 border-amber-500/20",
-  high: "bg-orange-500/10 text-orange-500 border-orange-500/20",
-  critical: "bg-red-500/10 text-red-500 border-red-500/20",
+  low: "bg-[#6AB7FF]/10 text-[#0057B8] border-[#6AB7FF]/30",
+  medium: "bg-[#FACC15]/10 text-[#FACC15] border-[#FACC15]/30",
+  high: "bg-[#FACC15]/20 text-[#FACC15] border-[#FACC15]/40",
+  critical: "bg-[#DC2626]/10 text-[#DC2626] border-[#DC2626]/30",
 }
 
 const severityLabels: Record<string, string> = {
@@ -61,20 +61,20 @@ export function AlertsList({ alerts, onResolve }: AlertsListProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5" />
+    <Card className="bg-white border-[#D0D3D6] shadow-md">
+      <CardHeader className="border-b border-[#D0D3D6]">
+        <CardTitle className="flex items-center gap-2 text-[#2E3438]">
+          <AlertTriangle className="h-5 w-5 text-[#DC2626]" />
           Alertas Recentes
         </CardTitle>
-        <CardDescription>Últimos alertas do sistema de monitoramento</CardDescription>
+        <CardDescription className="text-[#2E3438]/70">Últimos alertas do sistema de monitoramento</CardDescription>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px] pr-4">
           {alerts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-              <Check className="h-12 w-12 mb-2 text-emerald-500" />
-              <p>Nenhum alerta registrado</p>
+            <div className="flex flex-col items-center justify-center py-8 text-[#2E3438]/60">
+              <Check className="h-12 w-12 mb-2 text-[#22C55E]" />
+              <p className="font-medium">Nenhum alerta registrado</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -86,7 +86,7 @@ export function AlertsList({ alerts, onResolve }: AlertsListProps) {
                     key={alert.id}
                     className={cn(
                       "flex items-start gap-3 p-3 rounded-lg border transition-colors",
-                      alert.resolved ? "bg-muted/30 opacity-60" : "bg-card hover:bg-muted/50",
+                      alert.resolved ? "bg-[#F4F6F8] opacity-60 border-[#D0D3D6]" : "bg-white hover:bg-[#F4F6F8] border-[#D0D3D6]",
                     )}
                   >
                     <div className={cn("p-2 rounded-full", severityColors[alert.severity])}>
@@ -98,16 +98,21 @@ export function AlertsList({ alerts, onResolve }: AlertsListProps) {
                         <Badge variant="outline" className={severityColors[alert.severity]}>
                           {severityLabels[alert.severity]}
                         </Badge>
-                        {alert.resolved && <Badge variant="secondary">Resolvido</Badge>}
+                        {alert.resolved && <Badge className="bg-[#22C55E] text-white">Resolvido</Badge>}
                       </div>
-                      <p className="text-sm font-medium text-foreground">{alert.description}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-sm font-semibold text-[#2E3438]">{alert.description}</p>
+                      <p className="text-xs text-[#2E3438]/70 mt-1">
                         {new Date(alert.timestamp).toLocaleString("pt-BR")}
                       </p>
                     </div>
 
                     {!alert.resolved && (
-                      <Button size="sm" variant="outline" onClick={() => handleResolve(alert.id)}>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => handleResolve(alert.id)}
+                        className="bg-[#0057B8] hover:bg-[#0057B8]/90 text-white border-[#0057B8]"
+                      >
                         Resolver
                       </Button>
                     )}

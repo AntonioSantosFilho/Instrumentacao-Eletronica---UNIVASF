@@ -1,7 +1,27 @@
 @import 'tailwindcss';
 
 @layer base {
+  :root {
+    /* Paleta Pharmatrack - Cores Primárias */
+    --pharma-blue-primary: #0057B8;
+    --pharma-blue-light: #6AB7FF;
+    
+    /* Tons Neutros */
+    --pharma-gray-light: #F4F6F8;
+    --pharma-gray-medium: #D0D3D6;
+    --pharma-gray-dark: #2E3438;
+    
+    /* Cores de Status */
+    --pharma-green-safe: #22C55E;
+    --pharma-yellow-warning: #FACC15;
+    --pharma-red-critical: #DC2626;
+    
+    /* Cores de Destaque */
+    --pharma-cyan: #00CED1;
+    --pharma-purple: #6D28D9;
+  }
+  
   body {
-    @apply bg-white text-black;
+    @apply bg-[#F4F6F8] text-[#2E3438];
   }
 }

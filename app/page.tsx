@@ -49,7 +49,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-[#F4F6F8]">
       <div className="container mx-auto p-6 space-y-8">
         <DashboardHeader
           lastUpdate={data.stats?.lastTemperature?.timestamp ? new Date(data.stats.lastTemperature.timestamp).toLocaleString() : "N/A"}

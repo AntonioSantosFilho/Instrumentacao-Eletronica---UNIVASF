@@ -32,13 +32,13 @@ export function GPSChart({ data }: GPSChartProps) {
 
   if (chartData.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Evolução GPS</CardTitle>
-          <CardDescription>Monitoramento das últimas 24 horas</CardDescription>
+      <Card className="bg-white border-[#D0D3D6] shadow-md">
+        <CardHeader className="border-b border-[#D0D3D6]">
+          <CardTitle className="text-[#2E3438]">Evolução GPS</CardTitle>
+          <CardDescription className="text-[#2E3438]/70">Monitoramento das últimas 24 horas</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+          <div className="h-[300px] flex items-center justify-center text-[#2E3438]/60">
             Nenhum dado GPS disponível
           </div>
         </CardContent>
@@ -65,10 +65,10 @@ export function GPSChart({ data }: GPSChartProps) {
 
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Evolução GPS</CardTitle>
-        <CardDescription>Monitoramento das últimas 24 horas - Coordenadas</CardDescription>
+    <Card className="bg-white border-[#D0D3D6] shadow-md">
+      <CardHeader className="border-b border-[#D0D3D6]">
+        <CardTitle className="text-[#2E3438]">Evolução GPS</CardTitle>
+        <CardDescription className="text-[#2E3438]/70">Monitoramento das últimas 24 horas - Coordenadas</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer
@@ -86,7 +86,7 @@ export function GPSChart({ data }: GPSChartProps) {
         >
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#D0D3D6" strokeOpacity={0.3} />
               <XAxis dataKey="time" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
               <YAxis
                 yAxisId="left"
@@ -95,7 +95,7 @@ export function GPSChart({ data }: GPSChartProps) {
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(value) => value.toFixed(4)}
-                stroke="hsl(var(--chart-1))"
+                stroke="#0057B8"
               />
               <YAxis
                 yAxisId="right"
@@ -105,7 +105,7 @@ export function GPSChart({ data }: GPSChartProps) {
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(value) => value.toFixed(4)}
-                stroke="hsl(var(--chart-2))"
+                stroke="#6AB7FF"
               />
               <ChartTooltip
                 content={<ChartTooltipContent />}
@@ -118,20 +118,20 @@ export function GPSChart({ data }: GPSChartProps) {
                 yAxisId="left"
                 type="monotone"
                 dataKey="latitude"
-                stroke="var(--color-latitude)"
-                strokeWidth={2}
+                stroke="#0057B8"
+                strokeWidth={3}
                 dot={false}
-                activeDot={{ r: 6 }}
+                activeDot={{ r: 6, fill: "#0057B8" }}
                 name="latitude"
               />
               <Line
                 yAxisId="right"
                 type="monotone"
                 dataKey="longitude"
-                stroke="var(--color-longitude)"
-                strokeWidth={2}
+                stroke="#6AB7FF"
+                strokeWidth={3}
                 dot={false}
-                activeDot={{ r: 6 }}
+                activeDot={{ r: 6, fill: "#6AB7FF" }}
                 name="longitude"
               />
             </LineChart>

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description:
     "Sistema de monitoramento em tempo real para transporte seguro de vacinas e medicamentos sensíveis à temperatura",
   keywords: ["vacinas", "monitoramento", "transporte", "temperatura", "GPS", "IoT"],
-  generator: "v0.app",
+  generator: "pharmatrackx",
   icons: {
     icon: [
       {

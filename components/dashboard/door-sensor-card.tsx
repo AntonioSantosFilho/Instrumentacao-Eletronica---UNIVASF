@@ -30,34 +30,36 @@ export function DoorSensorCard({ doorState }: DoorSensorCardProps) {
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Sensor de Porta</CardTitle>
-        <DoorOpen className={cn("h-4 w-4", isOnline ? "text-emerald-500" : "text-zinc-400")} />
+    <Card className="bg-white border-[#D0D3D6] shadow-md hover:shadow-lg transition-shadow">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-[#D0D3D6]">
+        <CardTitle className="text-sm font-semibold text-[#2E3438]">Sensor de Porta</CardTitle>
+        <div className={cn("p-2 rounded-lg", isOnline ? (isOpen ? "bg-[#FACC15]/10" : "bg-[#22C55E]/10") : "bg-[#D0D3D6]/50")}>
+          <DoorOpen className={cn("h-5 w-5", isOnline ? (isOpen ? "text-[#FACC15]" : "text-[#22C55E]") : "text-[#D0D3D6]")} />
+        </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <div className={cn("text-2xl font-bold", isOpen ? "text-orange-500" : "text-emerald-500")}>
+              <div className={cn("text-3xl font-bold", isOpen ? "text-[#FACC15]" : state === "closed" ? "text-[#22C55E]" : "text-[#D0D3D6]")}>
                 {state === "open" ? "Aberta" : state === "closed" ? "Fechada" : "--"}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {isOpen ? "Porta aberta" : state === "closed" ? "Porta fechada" : "Sem dados"}
+              <p className={cn("text-xs mt-1 font-medium", isOpen ? "text-[#FACC15]" : state === "closed" ? "text-[#22C55E]" : "text-[#D0D3D6]")}>
+                {isOpen ? "⚠ Porta aberta" : state === "closed" ? "✓ Porta fechada" : "Sem dados"}
               </p>
             </div>
-            <Badge variant={isOnline ? "default" : "secondary"}>
+            <Badge className={cn(isOnline ? "bg-[#22C55E] text-white" : "bg-[#D0D3D6] text-[#2E3438]")}>
               {isOnline ? "Online" : "Offline"}
             </Badge>
           </div>
 
           {timestamp && (
-            <div className="pt-3 border-t space-y-1">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="pt-3 border-t border-[#D0D3D6] space-y-1">
+              <div className="flex items-center gap-2 text-xs text-[#2E3438]/70">
                 <Clock className="h-3 w-3" />
                 <span>Última Leitura</span>
               </div>
-              <p className="text-sm font-medium">
+              <p className="text-sm font-semibold text-[#2E3438]">
                 {timestamp.toLocaleString("pt-BR", {
                   day: "2-digit",
                   month: "2-digit",
@@ -66,7 +68,7 @@ export function DoorSensorCard({ doorState }: DoorSensorCardProps) {
                   minute: "2-digit",
                 })}
               </p>
-              <p className="text-xs text-muted-foreground">{getTimeAgo(timestamp)}</p>
+              <p className="text-xs text-[#2E3438]/60">{getTimeAgo(timestamp)}</p>
             </div>
           )}
         </div>
