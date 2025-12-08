@@ -1,7 +1,8 @@
 "use client"
 
+import { useEffect, useRef, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { MapPin, Navigation } from "lucide-react"
+import { MapPin } from "lucide-react"
 
 interface GPSMapProps {
   location: { latitude: number; longitude: number } | null
@@ -9,11 +10,138 @@ interface GPSMapProps {
 }
 
 export function GPSMap({ location, history = [] }: GPSMapProps) {
-  const openInMaps = () => {
-    if (location) {
-      window.open(`https://www.google.com/maps?q=${location.latitude},${location.longitude}`, "_blank")
+  const mapRef = useRef<any>(null)
+  const mapContainerRef = useRef<HTMLDivElement>(null)
+  const markersRef = useRef<any[]>([])
+  const [isClient, setIsClient] = useState(false)
+
+  // Garantir que estamos no cliente
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  useEffect(() => {
+    if (!isClient || !mapContainerRef.current || !location) return
+
+    // Carregar Leaflet dinamicamente apenas no cliente
+    import("leaflet").then((L) => {
+      // Fix para ícones padrão do Leaflet no Next.js
+      delete (L.default.Icon.Default.prototype as any)._getIconUrl
+      L.default.Icon.Default.mergeOptions({
+        iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+        iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+        shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+      })
+
+      // Importar CSS do Leaflet
+      import("leaflet/dist/leaflet.css")
+
+      // Inicializar mapa apenas uma vez
+      if (!mapRef.current) {
+        mapRef.current = L.default.map(mapContainerRef.current, {
+          zoomControl: true,
+          scrollWheelZoom: true,
+        })
+
+        // Adicionar tile layer (OpenStreetMap)
+        L.default.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19,
+        }).addTo(mapRef.current)
+      }
+
+      const map = mapRef.current
+
+      // Limpar marcadores anteriores
+      markersRef.current.forEach((marker) => {
+        if (map.hasLayer(marker)) {
+          map.removeLayer(marker)
+        }
+      })
+      markersRef.current = []
+
+      // Adicionar marcador da localização atual
+      const lat = Number(location.latitude)
+      const lng = Number(location.longitude)
+      
+      const currentMarker = L.default.marker([lat, lng], {
+        icon: L.default.icon({
+          iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+          iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+          shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41],
+        }),
+      })
+        .addTo(map)
+        .bindPopup(`<b>Localização Atual</b><br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`)
+
+      markersRef.current.push(currentMarker)
+
+      // Adicionar marcadores do histórico
+      if (history.length > 0) {
+        history.slice(0, 10).forEach((pos, index) => {
+          const posLat = Number(pos.latitude)
+          const posLng = Number(pos.longitude)
+          
+          const historyMarker = L.default.circleMarker([posLat, posLng], {
+            radius: 5,
+            fillColor: "#3B82F6",
+            color: "#1E40AF",
+            weight: 2,
+            opacity: 0.7,
+            fillOpacity: 0.5,
+          })
+            .addTo(map)
+            .bindPopup(
+              `<b>Posição ${index + 1}</b><br>Lat: ${posLat.toFixed(6)}<br>Lng: ${posLng.toFixed(6)}${pos.timestamp ? `<br>${new Date(pos.timestamp).toLocaleString("pt-BR")}` : ""}`
+            )
+
+          markersRef.current.push(historyMarker)
+        })
+
+        // Adicionar linha conectando os pontos do histórico
+        if (history.length > 1) {
+          const latlngs = history.map((pos) => [Number(pos.latitude), Number(pos.longitude)] as [number, number])
+          const polyline = L.default.polyline(latlngs, {
+            color: "#3B82F6",
+            weight: 2,
+            opacity: 0.5,
+            dashArray: "5, 5",
+          }).addTo(map)
+
+          markersRef.current.push(polyline)
+        }
+      }
+
+      // Centralizar mapa na localização atual
+      map.setView([lat, lng], 13)
+    })
+
+    // Cleanup apenas quando o componente for desmontado
+    return () => {
+      if (mapRef.current) {
+        markersRef.current.forEach((marker) => {
+          if (mapRef.current?.hasLayer(marker)) {
+            mapRef.current.removeLayer(marker)
+          }
+        })
+        markersRef.current = []
+      }
     }
-  }
+  }, [isClient, location, history])
+
+  // Cleanup do mapa quando o componente for desmontado
+  useEffect(() => {
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove()
+        mapRef.current = null
+      }
+    }
+  }, [])
 
   return (
     <Card className="bg-white border-[#D0D3D6] shadow-md">
@@ -27,27 +155,12 @@ export function GPSMap({ location, history = [] }: GPSMapProps) {
       <CardContent>
         {location ? (
           <div className="space-y-4">
-            {/* Mapa placeholder - pode ser substituído por Leaflet ou Google Maps */}
+            {/* Mapa Leaflet */}
             <div
-              className="relative w-full h-[250px] bg-gradient-to-br from-[#6AB7FF]/20 to-[#0057B8]/20 rounded-lg overflow-hidden cursor-pointer group border border-[#D0D3D6]"
-              onClick={openInMaps}
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <Navigation className="h-12 w-12 mx-auto text-[#0057B8] mb-2 group-hover:scale-110 transition-transform" />
-                  <p className="text-sm font-semibold text-[#2E3438]">Clique para abrir no Google Maps</p>
-                </div>
-              </div>
-
-              {/* Grid decorativo */}
-              <div className="absolute inset-0 opacity-20">
-                <div className="grid grid-cols-8 grid-rows-6 h-full w-full">
-                  {Array.from({ length: 48 }).map((_, i) => (
-                    <div key={i} className="border border-muted-foreground/20" />
-                  ))}
-                </div>
-              </div>
-            </div>
+              ref={mapContainerRef}
+              className="w-full h-[400px] rounded-lg overflow-hidden border border-[#D0D3D6]"
+              style={{ position: "relative", zIndex: 0 }}
+            />
 
             {/* Coordenadas */}
             <div className="grid grid-cols-2 gap-4">

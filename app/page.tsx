@@ -10,7 +10,6 @@ import { TemperatureChart } from "@/components/dashboard/temperature-chart"
 import { DoorChart } from "@/components/dashboard/door-chart"
 import { TouchChart } from "@/components/dashboard/touch-chart"
 import { GPSMap } from "@/components/dashboard/gps-map"
-import { AlertsList } from "@/components/dashboard/alerts-list"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
@@ -75,17 +74,12 @@ export default function DashboardPage() {
           <TouchChart data={data.touchHistory || []} />
         </div>
 
-        {/* Mapa GPS e Alertas */}
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <GPSMap
-              location={data.stats?.lastGPS ? { latitude: data.stats.lastGPS.latitude, longitude: data.stats.lastGPS.longitude } : null}
-              history={data.gpsHistory || []}
-            />
-          </div>
-          <div>
-            <AlertsList alerts={data.recentAlerts || []} onResolve={() => refresh()} />
-          </div>
+        {/* Mapa GPS */}
+        <div>
+          <GPSMap
+            location={data.stats?.lastGPS ? { latitude: data.stats.lastGPS.latitude, longitude: data.stats.lastGPS.longitude } : null}
+            history={data.gpsHistory || []}
+          />
         </div>
       </div>
     </div>

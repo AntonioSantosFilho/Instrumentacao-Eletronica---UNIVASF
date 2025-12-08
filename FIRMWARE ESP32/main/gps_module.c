@@ -5,6 +5,7 @@
 #include "freertos/task.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define RX_PIN 16
 #define TX_PIN 17
@@ -38,6 +39,25 @@ typedef struct {
 } gps_data_t;
 
 gps_data_t current_gps_data;
+
+// Helper to convert NMEA (DDMM.MMMMM) to Decimal Degrees (DD.DDDDD) string
+void nmea_to_decimal(char *nmea, char *dir, char *result) {
+    if (strlen(nmea) == 0) {
+        strcpy(result, "0.0");
+        return;
+    }
+    
+    double raw = atof(nmea);
+    int degrees = (int)(raw / 100);
+    double minutes = raw - (degrees * 100);
+    double decimal = degrees + (minutes / 60.0);
+    
+    if (dir[0] == 'S' || dir[0] == 'W') {
+        decimal *= -1.0;
+    }
+    
+    sprintf(result, "%.7f", decimal);
+}
 
 void parse_nmea(char *line) {
     char token[32];
@@ -98,10 +118,22 @@ void gps_task(void *pvParameters) {
         if ((now - last_send_time) >= (10000 / portTICK_PERIOD_MS)) {
             if (strlen(current_gps_data.lat) > 0) { // Only send if we have some data
                 printf("Sending GPS Data...\n");
+                
+                char lat_decimal[20];
+                char lon_decimal[20];
+                nmea_to_decimal(current_gps_data.lat, current_gps_data.lat_dir, lat_decimal);
+                nmea_to_decimal(current_gps_data.lon, current_gps_data.lon_dir, lon_decimal);
+
+                // Ensure course is not empty
+                if (strlen(current_gps_data.course) == 0) {
+                    strcpy(current_gps_data.course, "0.0");
+                }
+
                 char json_data[512];
+                // Use the decimal coordinates and quote all values as strings
                 snprintf(json_data, sizeof(json_data), 
-                    "{\"latitude\": %s, \"longitude\": %s, \"latitude_dir\": \"%s\", \"longitude_dir\": \"%s\", \"fix_quality\": \"%s\", \"satellites\": %s, \"hdop\": %s, \"altitude\": %s, \"speed\": %s, \"course\": %s, \"date\": \"%s\"}",
-                    current_gps_data.lat, current_gps_data.lon, current_gps_data.lat_dir, current_gps_data.lon_dir,
+                    "{\"latitude\": \"%s\", \"longitude\": \"%s\", \"latitude_dir\": \"%s\", \"longitude_dir\": \"%s\", \"fix_quality\": \"%s\", \"satellites\": \"%s\", \"hdop\": \"%s\", \"altitude\": \"%s\", \"speed\": \"%s\", \"course\": \"%s\", \"date\": \"%s\"}",
+                    lat_decimal, lon_decimal, current_gps_data.lat_dir, current_gps_data.lon_dir,
                     current_gps_data.fix_quality, current_gps_data.satellites, current_gps_data.hdop,
                     current_gps_data.altitude, current_gps_data.speed, current_gps_data.course, current_gps_data.date);
                 http_send_data("/api/sensors/gps", json_data);
