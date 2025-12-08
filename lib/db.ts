@@ -58,7 +58,6 @@ export interface TouchSensorData {
   id?: number
   timestamp?: Date
   value: boolean
-  device_id?: string
 }
 
 export interface GPSSensorData {
@@ -75,21 +74,18 @@ export interface GPSSensorData {
   speed?: number
   course?: number
   date?: string
-  device_id?: string
 }
 
 export interface DoorSensorData {
   id?: number
   timestamp?: Date
   state: "open" | "closed"
-  device_id?: string
 }
 
 export interface TemperatureSensorData {
   id?: number
   timestamp?: Date
   temperature: number
-  device_id?: string
 }
 
 export interface AlertData {
@@ -100,14 +96,12 @@ export interface AlertData {
   description: string
   resolved?: boolean
   resolved_at?: Date
-  device_id?: string
 }
 
 // DeviceData removed as part of refactor to focus on Vaccine Transport
 
 export interface TransportData {
   id?: number
-  device_id?: string
   start_time?: Date
   end_time?: Date
   origin?: string

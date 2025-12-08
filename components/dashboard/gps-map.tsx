@@ -53,11 +53,11 @@ export function GPSMap({ location, history = [] }: GPSMapProps) {
             <div className="grid grid-cols-2 gap-4">
               <div className="p-3 bg-[#F4F6F8] rounded-lg border border-[#D0D3D6]">
                 <p className="text-xs text-[#2E3438]/70 mb-1 font-medium">Latitude</p>
-                <p className="font-mono text-sm font-semibold text-[#0057B8]">{location.latitude.toFixed(6)}</p>
+                <p className="font-mono text-sm font-semibold text-[#0057B8]">{Number(location.latitude).toFixed(6)}</p>
               </div>
               <div className="p-3 bg-[#F4F6F8] rounded-lg border border-[#D0D3D6]">
                 <p className="text-xs text-[#2E3438]/70 mb-1 font-medium">Longitude</p>
-                <p className="font-mono text-sm font-semibold text-[#0057B8]">{location.longitude.toFixed(6)}</p>
+                <p className="font-mono text-sm font-semibold text-[#0057B8]">{Number(location.longitude).toFixed(6)}</p>
               </div>
             </div>
 
@@ -69,10 +69,10 @@ export function GPSMap({ location, history = [] }: GPSMapProps) {
                   {history.slice(0, 5).map((pos, index) => (
                     <div key={index} className="flex items-center justify-between text-xs p-2 bg-[#F4F6F8] rounded border border-[#D0D3D6]">
                       <span className="font-mono text-[#0057B8]">
-                        {pos.latitude.toFixed(4)}, {pos.longitude.toFixed(4)}
+                        {Number(pos.latitude).toFixed(4)}, {Number(pos.longitude).toFixed(4)}
                       </span>
                       <span className="text-[#2E3438]/70">
-                        {new Date(pos.timestamp).toLocaleTimeString("pt-BR")}
+                        {pos.timestamp ? new Date(pos.timestamp).toLocaleTimeString("pt-BR") : "--:--"}
                       </span>
                     </div>
                   ))}

@@ -1,20 +1,17 @@
 "use client"
 
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { RefreshCw, Settings, Bell, Truck } from "lucide-react"
+import { Bell } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface DashboardHeaderProps {
   lastUpdate?: string
-  isLoading?: boolean
-  onRefresh?: () => void
   unresolvedAlerts?: number
 }
 
 export function DashboardHeader({
   lastUpdate,
-  isLoading = false,
-  onRefresh,
   unresolvedAlerts = 0,
 }: DashboardHeaderProps) {
   return (
@@ -22,8 +19,14 @@ export function DashboardHeader({
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-              <Truck className="h-6 w-6 text-white" />
+            <div className="p-2 bg-white rounded-lg shadow-sm">
+              <Image
+                src="/logo.png"
+                alt="PharmaTrack Logo"
+                width={32}
+                height={32}
+                className="h-8 w-8 object-contain"
+              />
             </div>
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-white">PharmaTrack</h1>
@@ -46,14 +49,6 @@ export function DashboardHeader({
                 {unresolvedAlerts > 9 ? "9+" : unresolvedAlerts}
               </span>
             )}
-          </Button>
-
-          <Button variant="outline" size="icon" onClick={onRefresh} disabled={isLoading} className="bg-white/10 hover:bg-white/20 border-white/20 text-white">
-            <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
-          </Button>
-
-          <Button variant="outline" size="icon" className="bg-white/10 hover:bg-white/20 border-white/20 text-white">
-            <Settings className="h-4 w-4" />
           </Button>
         </div>
       </div>

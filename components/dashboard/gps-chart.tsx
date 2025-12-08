@@ -21,6 +21,8 @@ export function GPSChart({ data }: GPSChartProps) {
     return data
       .map((item) => ({
         ...item,
+        latitude: Number(item.latitude),
+        longitude: Number(item.longitude),
         time: new Date(item.timestamp).toLocaleTimeString("pt-BR", {
           hour: "2-digit",
           minute: "2-digit",

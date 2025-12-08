@@ -5,7 +5,7 @@ import { query, type AlertData } from "@/lib/db"
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { alert_type, severity = "medium", description, device_id = "default" } = body
+    const { alert_type, severity = "medium", description } = body
 
     if (!alert_type || !description) {
       return NextResponse.json({ error: 'Os campos "alert_type" e "description" são obrigatórios' }, { status: 400 })
@@ -20,9 +20,9 @@ export async function POST(request: NextRequest) {
     }
 
     await query(
-      `INSERT INTO alerts (alert_type, severity, description, device_id) 
-       VALUES (?, ?, ?, ?)`,
-      [alert_type, severity, description, device_id],
+      `INSERT INTO alerts (alert_type, severity, description) 
+       VALUES (?, ?, ?)`,
+      [alert_type, severity, description],
     )
 
     return NextResponse.json({
@@ -40,17 +40,11 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const limit = Number.parseInt(searchParams.get("limit") || "100")
-    const device_id = searchParams.get("device_id")
     const resolved = searchParams.get("resolved")
     const severity = searchParams.get("severity")
 
     let sql = "SELECT * FROM alerts WHERE 1=1"
     const params: any[] = []
-
-    if (device_id) {
-      sql += " AND device_id = ?"
-      params.push(device_id)
-    }
 
     if (resolved !== null && resolved !== undefined) {
       sql += " AND resolved = ?"

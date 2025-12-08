@@ -8,27 +8,14 @@ import { Toaster } from "@/components/ui/sonner"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "VaccineTrack - Monitoramento de Transporte de Vacinas",
+  title: "PharmaTrack - Monitoramento de Transporte de Vacinas",
   description:
     "Sistema de monitoramento em tempo real para transporte seguro de vacinas e medicamentos sensíveis à temperatura",
   keywords: ["vacinas", "monitoramento", "transporte", "temperatura", "GPS", "IoT"],
   generator: "pharmatrackx",
   icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: "/apple-icon.png",
+    icon: "/logo.png",
+    apple: "/logo.png",
   },
 }
 

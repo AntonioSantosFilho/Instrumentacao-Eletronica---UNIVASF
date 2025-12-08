@@ -9,7 +9,7 @@ const MAX_TEMP = 8
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { temperature, device_id = "default" } = body
+    const { temperature } = body
 
     if (temperature === undefined || typeof temperature !== "number") {
       return NextResponse.json({ error: 'O campo "temperature" deve ser um número' }, { status: 400 })
@@ -18,9 +18,8 @@ export async function POST(request: NextRequest) {
     // Arredondar temperatura para 2 casas decimais para evitar problemas de precisão
     const roundedTemperature = Math.round(temperature * 100) / 100
 
-    await query("INSERT INTO temperature_sensor (temperature, device_id) VALUES (?, ?)", [
+    await query("INSERT INTO temperature_sensor (temperature) VALUES (?)", [
       roundedTemperature,
-      device_id,
     ])
 
     // Verificar se a temperatura está fora do limite e gerar alerta
@@ -32,14 +31,11 @@ export async function POST(request: NextRequest) {
           : `Temperatura muito alta: ${roundedTemperature.toFixed(1)}°C (máximo: ${MAX_TEMP}°C)`
 
       await query(
-        `INSERT INTO alerts (alert_type, severity, description, device_id) 
-         VALUES (?, ?, ?, ?)`,
-        ["temperature", severity, description, device_id],
+        `INSERT INTO alerts (alert_type, severity, description) 
+         VALUES (?, ?, ?)`,
+        ["temperature", severity, description],
       )
     }
-
-    // Atualizar último contato do dispositivo
-    await query("UPDATE devices SET last_seen = CURRENT_TIMESTAMP WHERE id = ?", [device_id])
 
     return NextResponse.json({
       success: true,
@@ -56,11 +52,10 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const limit = Number.parseInt(searchParams.get("limit") || "100")
-    const device_id = searchParams.get("device_id") || "default"
     const hours = searchParams.get("hours") // Filtrar por últimas X horas
 
-    let sql = "SELECT * FROM temperature_sensor WHERE device_id = ?"
-    const params: any[] = [device_id]
+    let sql = "SELECT * FROM temperature_sensor WHERE 1=1"
+    const params: any[] = []
 
     if (hours) {
       sql += " AND timestamp >= DATE_SUB(NOW(), INTERVAL ? HOUR)"

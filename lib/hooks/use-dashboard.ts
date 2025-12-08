@@ -18,6 +18,8 @@ export interface DashboardData {
   }
   tempHistory: Array<{ temperature: number; timestamp: string }>
   gpsHistory: Array<{ latitude: number; longitude: number; timestamp: string }>
+  doorHistory: Array<{ state: string; timestamp: string }>
+  touchHistory: Array<{ value: number; timestamp: string }>
   recentAlerts: Array<{
     id: number
     timestamp: string
@@ -28,8 +30,8 @@ export interface DashboardData {
   }>
 }
 
-export function useDashboard(deviceId = "default") {
-  const { data, error, isLoading, mutate } = useSWR<DashboardData>(`/api/dashboard?device_id=${deviceId}`, fetcher, {
+export function useDashboard() {
+  const { data, error, isLoading, mutate } = useSWR<DashboardData>("/api/dashboard", fetcher, {
     refreshInterval: 5000, // Atualiza a cada 5 segundos
     revalidateOnFocus: true,
   })
@@ -42,9 +44,9 @@ export function useDashboard(deviceId = "default") {
   }
 }
 
-export function useTemperatureHistory(deviceId = "default", hours = 24) {
+export function useTemperatureHistory(hours = 24) {
   const { data, error, isLoading } = useSWR(
-    `/api/sensors/temperature?device_id=${deviceId}&hours=${hours}&limit=500`,
+    `/api/sensors/temperature?hours=${hours}&limit=500`,
     fetcher,
     {
       refreshInterval: 30000,
@@ -58,9 +60,8 @@ export function useTemperatureHistory(deviceId = "default", hours = 24) {
   }
 }
 
-export function useAlerts(deviceId?: string, resolved?: boolean) {
+export function useAlerts(resolved?: boolean) {
   const params = new URLSearchParams()
-  if (deviceId) params.set("device_id", deviceId)
   if (resolved !== undefined) params.set("resolved", String(resolved))
 
   const { data, error, isLoading, mutate } = useSWR(`/api/alerts?${params.toString()}`, fetcher, {
@@ -75,8 +76,8 @@ export function useAlerts(deviceId?: string, resolved?: boolean) {
   }
 }
 
-export function useGPSHistory(deviceId = "default", limit = 100) {
-  const { data, error, isLoading } = useSWR(`/api/sensors/gps?device_id=${deviceId}&limit=${limit}`, fetcher, {
+export function useGPSHistory(limit = 100) {
+  const { data, error, isLoading } = useSWR(`/api/sensors/gps?limit=${limit}`, fetcher, {
     refreshInterval: 10000,
   })
 

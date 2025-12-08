@@ -1,4 +1,4 @@
-# VaccineTrack - Sistema de Monitoramento de Transporte de Vacinas
+# PharmaTrack - Sistema de Monitoramento de Transporte de Vacinas
 
 Sistema completo para monitoramento em tempo real do transporte de vacinas e medicamentos sensíveis à temperatura.
 

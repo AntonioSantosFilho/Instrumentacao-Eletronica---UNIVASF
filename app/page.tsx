@@ -7,7 +7,8 @@ import { DoorSensorCard } from "@/components/dashboard/door-sensor-card"
 import { GPSSensorCard } from "@/components/dashboard/gps-sensor-card"
 import { TouchSensorCard } from "@/components/dashboard/touch-card"
 import { TemperatureChart } from "@/components/dashboard/temperature-chart"
-import { GPSChart } from "@/components/dashboard/gps-chart"
+import { DoorChart } from "@/components/dashboard/door-chart"
+import { TouchChart } from "@/components/dashboard/touch-chart"
 import { GPSMap } from "@/components/dashboard/gps-map"
 import { AlertsList } from "@/components/dashboard/alerts-list"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -15,7 +16,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 
 export default function DashboardPage() {
-  const { data, error, isLoading, refresh } = useDashboard("default")
+  const { data, error, isLoading, refresh } = useDashboard()
 
   if (error) {
     return (
@@ -53,8 +54,6 @@ export default function DashboardPage() {
       <div className="container mx-auto p-6 space-y-8">
         <DashboardHeader
           lastUpdate={data.stats?.lastTemperature?.timestamp ? new Date(data.stats.lastTemperature.timestamp).toLocaleString() : "N/A"}
-          isLoading={isLoading}
-          onRefresh={refresh}
           unresolvedAlerts={data.stats?.unresolvedAlerts || 0}
         />
 
@@ -69,15 +68,19 @@ export default function DashboardPage() {
         {/* Gráficos de Evolução Temporal */}
         <div className="grid gap-6 lg:grid-cols-2">
           <TemperatureChart data={data.tempHistory || []} />
-          <GPSChart data={data.gpsHistory || []} />
+          <DoorChart data={data.doorHistory || []} />
+        </div>
+
+        <div className="mt-6">
+          <TouchChart data={data.touchHistory || []} />
         </div>
 
         {/* Mapa GPS e Alertas */}
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <GPSMap 
-              location={data.stats?.lastGPS ? { latitude: data.stats.lastGPS.latitude, longitude: data.stats.lastGPS.longitude } : null} 
-              history={data.gpsHistory || []} 
+            <GPSMap
+              location={data.stats?.lastGPS ? { latitude: data.stats.lastGPS.latitude, longitude: data.stats.lastGPS.longitude } : null}
+              history={data.gpsHistory || []}
             />
           </div>
           <div>
