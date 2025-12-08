@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query, type GPSSensorData } from "@/lib/db"
+import { query, type GPSSensorData, getCurrentTimestampUTC3 } from "@/lib/db"
 
 // POST - Receber dados do sensor GPS
 export async function POST(request: NextRequest) {
@@ -23,11 +23,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Os campos "latitude" e "longitude" são obrigatórios' }, { status: 400 })
     }
 
+    // Obter timestamp em UTC-3
+    const timestamp = getCurrentTimestampUTC3()
+
     await query(
       `INSERT INTO gps_sensor 
        (latitude, longitude, latitude_dir, longitude_dir, fix_quality, 
-        satellites, hdop, altitude, speed, course, date) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        satellites, hdop, altitude, speed, course, date, timestamp) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         latitude,
         longitude,
@@ -40,6 +43,7 @@ export async function POST(request: NextRequest) {
         speed,
         course,
         date,
+        timestamp,
       ],
     )
 

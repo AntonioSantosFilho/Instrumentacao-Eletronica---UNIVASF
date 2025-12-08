@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query, type AlertData } from "@/lib/db"
+import { query, type AlertData, getCurrentTimestampUTC3 } from "@/lib/db"
 
 // POST - Criar novo alerta
 export async function POST(request: NextRequest) {
@@ -19,10 +19,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const timestamp = getCurrentTimestampUTC3()
     await query(
-      `INSERT INTO alerts (alert_type, severity, description) 
-       VALUES (?, ?, ?)`,
-      [alert_type, severity, description],
+      `INSERT INTO alerts (alert_type, severity, description, timestamp) 
+       VALUES (?, ?, ?, ?)`,
+      [alert_type, severity, description, timestamp],
     )
 
     return NextResponse.json({
@@ -79,9 +80,10 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'O campo "id" é obrigatório' }, { status: 400 })
     }
 
-    await query("UPDATE alerts SET resolved = ?, resolved_at = IF(?, CURRENT_TIMESTAMP, NULL) WHERE id = ?", [
+    const resolvedAt = resolved ? getCurrentTimestampUTC3() : null
+    await query("UPDATE alerts SET resolved = ?, resolved_at = ? WHERE id = ?", [
       resolved,
-      resolved,
+      resolvedAt,
       id,
     ])
 

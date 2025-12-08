@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query, type DoorSensorData } from "@/lib/db"
+import { query, type DoorSensorData, getCurrentTimestampUTC3 } from "@/lib/db"
 
 // POST - Receber dados do sensor da porta
 export async function POST(request: NextRequest) {
@@ -11,14 +11,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'O campo "state" deve ser "open" ou "closed"' }, { status: 400 })
     }
 
-    await query("INSERT INTO door_sensor (state) VALUES (?)", [state])
+    // Obter timestamp em UTC-3
+    const timestamp = getCurrentTimestampUTC3()
+
+    await query("INSERT INTO door_sensor (state, timestamp) VALUES (?, ?)", [state, timestamp])
 
     // Gerar alerta se a porta foi aberta
     if (state === "open") {
       await query(
-        `INSERT INTO alerts (alert_type, severity, description) 
-         VALUES (?, ?, ?)`,
-        ["door", "medium", "Porta da caixa térmica foi aberta"],
+        `INSERT INTO alerts (alert_type, severity, description, timestamp) 
+         VALUES (?, ?, ?, ?)`,
+        ["door", "medium", "Porta da caixa térmica foi aberta", timestamp],
       )
     }
 

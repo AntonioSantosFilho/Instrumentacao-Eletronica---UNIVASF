@@ -53,6 +53,23 @@ export async function query<T>(sql: string, params?: any[]): Promise<T> {
   return results as T
 }
 
+// Função para obter timestamp atual em UTC-3 (Brasil)
+export function getCurrentTimestampUTC3(): string {
+  const now = new Date()
+  // Converter para UTC-3 (subtrair 3 horas do UTC)
+  const utc3Time = new Date(now.getTime() - 3 * 60 * 60 * 1000)
+  
+  // Formatar como DATETIME do MySQL (YYYY-MM-DD HH:MM:SS)
+  const year = utc3Time.getUTCFullYear()
+  const month = String(utc3Time.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(utc3Time.getUTCDate()).padStart(2, '0')
+  const hours = String(utc3Time.getUTCHours()).padStart(2, '0')
+  const minutes = String(utc3Time.getUTCMinutes()).padStart(2, '0')
+  const seconds = String(utc3Time.getUTCSeconds()).padStart(2, '0')
+  
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+}
+
 // Tipos para os dados dos sensores
 export interface TouchSensorData {
   id?: number

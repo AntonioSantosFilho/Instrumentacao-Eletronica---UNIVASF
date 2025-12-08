@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query, type TouchSensorData } from "@/lib/db"
+import { query, type TouchSensorData, getCurrentTimestampUTC3 } from "@/lib/db"
 
 // POST - Receber dados do sensor de toque
 export async function POST(request: NextRequest) {
@@ -11,7 +11,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'O campo "value" deve ser um booleano' }, { status: 400 })
     }
 
-    await query("INSERT INTO touch_sensor (value) VALUES (?)", [value])
+    // Obter timestamp em UTC-3
+    const timestamp = getCurrentTimestampUTC3()
+
+    await query("INSERT INTO touch_sensor (value, timestamp) VALUES (?, ?)", [value, timestamp])
 
     return NextResponse.json({
       success: true,

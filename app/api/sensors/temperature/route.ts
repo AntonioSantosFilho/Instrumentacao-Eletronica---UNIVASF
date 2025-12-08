@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { query, type TemperatureSensorData } from "@/lib/db"
+import { query, type TemperatureSensorData, getCurrentTimestampUTC3 } from "@/lib/db"
 
 // Limites de temperatura para vacinas (em °C)
 const MIN_TEMP = 2
@@ -18,8 +18,12 @@ export async function POST(request: NextRequest) {
     // Arredondar temperatura para 2 casas decimais para evitar problemas de precisão
     const roundedTemperature = Math.round(temperature * 100) / 100
 
-    await query("INSERT INTO temperature_sensor (temperature) VALUES (?)", [
+    // Obter timestamp em UTC-3
+    const timestamp = getCurrentTimestampUTC3()
+
+    await query("INSERT INTO temperature_sensor (temperature, timestamp) VALUES (?, ?)", [
       roundedTemperature,
+      timestamp,
     ])
 
     // Verificar se a temperatura está fora do limite e gerar alerta
@@ -30,10 +34,11 @@ export async function POST(request: NextRequest) {
           ? `Temperatura muito baixa: ${roundedTemperature.toFixed(1)}°C (mínimo: ${MIN_TEMP}°C)`
           : `Temperatura muito alta: ${roundedTemperature.toFixed(1)}°C (máximo: ${MAX_TEMP}°C)`
 
+      const alertTimestamp = getCurrentTimestampUTC3()
       await query(
-        `INSERT INTO alerts (alert_type, severity, description) 
-         VALUES (?, ?, ?)`,
-        ["temperature", severity, description],
+        `INSERT INTO alerts (alert_type, severity, description, timestamp) 
+         VALUES (?, ?, ?, ?)`,
+        ["temperature", severity, description, alertTimestamp],
       )
     }
 
